@@ -38,26 +38,49 @@ namespace BlockBusters.Service.Domain
 
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
-                    using (SqlCommand command = new SqlCommand("SELECT [id],[title],[duration],[image_url],[description] FROM [dbo].[videos]", connection, transaction))
-                    {
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
+                    string query = "SELECT [id],[title],[duration],[image_url],[description] FROM [dbo].[videos]";
 
-                            while (reader.Read())
+                    try
+                    {
+                        using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                        {
+                            using (SqlDataReader reader = command.ExecuteReader())
                             {
-                                videos.Add(new Video()
+
+                                while (reader.Read())
                                 {
-                                    Id = (int)reader["id"],
-                                    Title = (string)reader["title"],
-                                    Duration = (int)reader["duration"],
-                                    ImageUrl = (string)reader["image_url"],
-                                    Description = (string)reader["description"]
-                                });
+                                    videos.Add(new Video()
+                                    {
+                                        Id = (int)reader["id"],
+                                        Title = (string)reader["title"],
+                                        Duration = (int)reader["duration"],
+                                        ImageUrl = (string)reader["image_url"],
+                                        Description = (string)reader["description"]
+                                    });
+                                }
                             }
                         }
-                    }
 
-                    transaction.Commit();
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            // Rollback: Attempt to undo everything since the transaction started.
+                            Console.Error.WriteLine("Attempting to rollback because an exception occured during the transaction phase.");
+                            transaction.Rollback();
+                        }
+                        catch (Exception rollbackEx)
+                        {
+                            // Throw rollback exception
+                            Console.Error.WriteLine("Rollback failed!");
+                            throw new Exception($"{rollbackEx.GetType()} {rollbackEx.Message}");
+                        }
+
+                        // Throw general exception
+                        throw new Exception($"{ex.GetType()} {ex.Message}");
+                    }
                 }
             }
 
@@ -74,31 +97,52 @@ namespace BlockBusters.Service.Domain
 
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
+
                     // Query: Insert and then Select/Get the ID of the newly inserted record
-                    string query = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();"; 
+                    string query = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
 
-
-                    using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                    try
                     {
-
-                        command.Parameters.AddWithValue("@Title", videoData.Title);
-                        command.Parameters.AddWithValue("@Duration", videoData.Duration);
-                        command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
-                        command.Parameters.AddWithValue("@Description", videoData.Description);
-                        using (SqlDataReader reader = command.ExecuteReader())
+                        using (SqlCommand command = new SqlCommand(query, connection, transaction))
                         {
 
-                            video = new Video()
+                            command.Parameters.AddWithValue("@Title", videoData.Title);
+                            command.Parameters.AddWithValue("@Duration", videoData.Duration);
+                            command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
+                            command.Parameters.AddWithValue("@Description", videoData.Description);
+                            using (SqlDataReader reader = command.ExecuteReader())
                             {
-                                Title = videoData.Title,
-                                Duration = videoData.Duration,
-                                ImageUrl = videoData.VideoThumbUrl,
-                                Description = videoData.Description
-                            };
-                        }
-                    }
 
-                    transaction.Commit();
+                                video = new Video()
+                                {
+                                    Title = videoData.Title,
+                                    Duration = videoData.Duration,
+                                    ImageUrl = videoData.VideoThumbUrl,
+                                    Description = videoData.Description
+                                };
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            // Rollback: Attempt to undo everything since the transaction started.
+                            Console.Error.WriteLine("Attempting to rollback because an exception occured during the transaction phase.");
+                            transaction.Rollback();
+                        }
+                        catch (Exception rollbackEx)
+                        {
+                            // Throw rollback exception
+                            Console.Error.WriteLine("Rollback failed!");
+                            throw new Exception($"{rollbackEx.GetType()} {rollbackEx.Message}");
+                        }
+
+                        // Throw general exception
+                        throw new Exception($"{ex.GetType()} {ex.Message}");
+                    }
                 }
             }
 
