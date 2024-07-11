@@ -24,18 +24,12 @@ namespace BlockBusters.Service
                     Description = video.Description,
                     Duration = video.Duration,
                     VideoThumbUrl = video.ImageUrl,
-                    Genres = this.genreRepository.getAllGenres().Select(genre =>
+                    Genres = this.genreRepository.getAllGenresForVideo(video.Id).Select(genre =>
                     {
-                        //if(genre.Id == video.Id)
-                        //{
-                            return new GenreDto { Genre = genre.Name };
-                        //}
-                        //else
-                        //{
-                        //    return null;
-                        //}
-                    }) 
-                    //Genres = video.Genres.Select(genreName => new GenreDto { Genre = genreName }) // Is this the correct way?
+
+                        return new GenreDto { Genre = genre.Name };
+
+                    })
                 };
             });
         }

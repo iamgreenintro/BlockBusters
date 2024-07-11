@@ -28,7 +28,7 @@ namespace BlockBusters.Service.Domain
             connectionString = connectionBuilder.ToString();
         }
 
-        public IEnumerable<Genre> getAllGenres()
+        public IEnumerable<Genre> getAllGenresForVideo(int videoId)
         {
             List<Genre> genres = new List<Genre>();
 
@@ -38,8 +38,13 @@ namespace BlockBusters.Service.Domain
 
                 using(SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
-                    using (SqlCommand command = new SqlCommand("SELECT [id],[genre] FROM [dbo].[genres]", connection, transaction))
+                    using (SqlCommand command = new SqlCommand(@"
+                SELECT g.[id], g.[genre] 
+                FROM [dbo].[genres] g
+                INNER JOIN [dbo].[video_genres] vg ON g.[id] = vg.[genre_id]
+                WHERE vg.[video_id] = @videoId", connection, transaction))
                     {
+                        command.Parameters.AddWithValue("@videoId", videoId);
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
 
