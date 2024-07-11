@@ -12,6 +12,15 @@ MERGE INTO [genres] AS [Target]
 USING (VALUES
   (1,N'Family')
  ,(2,N'Comedy')
+ ,(3,N'Action')
+ ,(4,N'Drama')
+ ,(5,N'Sci-Fi')
+ ,(6,N'Crime')
+ ,(7,N'Biography')
+ ,(8,N'History')
+ ,(9,N'Adventure')
+ ,(10,N'Mystery')
+ ,(11,N'Fantasy')
 ) AS [Source] ([id],[genre])
 ON ([Target].[id] = [Source].[id])
 WHEN MATCHED AND (

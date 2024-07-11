@@ -11,6 +11,11 @@ DECLARE @mergeOutput TABLE ( [DMLAction] VARCHAR(6) );
 MERGE INTO [videos] AS [Target]
 USING (VALUES
   (1,N'Mr. Bean',1500,N'/dist/video_thumb/mr_bean.jpg',N'Bumbling, childlike Mr. Bean has trouble completing the simplest of day-to-day tasks, but his perseverance and resourcefulness frequently allow him to find ingenious ways around problems.')
+  ,(2,N'The Shawshank Redemption',142,N'/dist/video_thumb/the_shawshank_redemption.jpg',N'Over the course of several years, two convicts form a friendship, seeking consolation and, eventually, redemption through basic compassion.')
+  ,(3,N'Schindler''s List',195,N'/dist/video_thumb/schindlers_list.jpg',N'In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.')
+  ,(4,N'Inception',148,N'/dist/video_thumb/inception.jpg',N'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O., but his tragic past may doom the project and his team to disaster.')
+  ,(5,N'Se7en',127,N'/dist/video_thumb/se7en.jpg',N'Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his motives.')
+  ,(6,N'The Green Mile',189,N'/dist/video_thumb/the_green_mile.jpg',N'A tale set on death row, where gentle giant John Coffey possesses the mysterious power to heal people''s ailments. When the lead guard, Paul Edgecombe, recognizes John''s gift, he tries to help stave off the condemned man''s execution.')
 ) AS [Source] ([id],[title],[duration],[image_url],[description])
 ON ([Target].[id] = [Source].[id])
 WHEN MATCHED AND (
