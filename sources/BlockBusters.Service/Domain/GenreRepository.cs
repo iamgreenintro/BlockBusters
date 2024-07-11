@@ -28,7 +28,7 @@ namespace BlockBusters.Service.Domain
             connectionString = connectionBuilder.ToString();
         }
 
-        public IEnumerable<Genre> getAllGenresForVideo(int videoId)
+        public IEnumerable<Genre> GetAllGenresForVideo(int videoId)
         {
             List<Genre> genres = new List<Genre>();
 

@@ -24,7 +24,7 @@ namespace BlockBusters.Service
                     Description = video.Description,
                     Duration = video.Duration,
                     VideoThumbUrl = video.ImageUrl,
-                    Genres = this.genreRepository.getAllGenresForVideo(video.Id).Select(genre =>
+                    Genres = this.genreRepository.GetAllGenresForVideo(video.Id).Select(genre =>
                     {
 
                         return new GenreDto { Genre = genre.Name };
@@ -43,7 +43,7 @@ namespace BlockBusters.Service
                 Description = createdVideo.Description,
                 Duration = createdVideo.Duration,
                 VideoThumbUrl = createdVideo.ImageUrl,
-                Genres = this.genreRepository.getAllGenresForVideo(createdVideo.Id).Select(genre =>
+                Genres = this.genreRepository.GetAllGenresForVideo(createdVideo.Id).Select(genre =>
                 {
                     return new GenreDto { Genre = genre.Name };
                 })
