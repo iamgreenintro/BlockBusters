@@ -51,5 +51,23 @@ namespace BlockBusters.Service
 
             return resultVideoDto;
         }
+
+        public IEnumerable<VideoDto> AddMultipleVideos(IEnumerable<VideoDto> videos)
+        {
+            return this.videoRepository.CreateMultiple(videos).Select(video =>
+            {
+                return new VideoDto()
+                {
+                    Title = video.Title,
+                    Description = video.Description,
+                    Duration = video.Duration,
+                    VideoThumbUrl = video.ImageUrl,
+                    Genres = this.genreRepository.GetAllGenresForVideo(video.Id).Select(genre =>
+                    {
+                        return new GenreDto { Genre = genre.Name };
+                    })
+                };
+            });
+        }
     }
 }

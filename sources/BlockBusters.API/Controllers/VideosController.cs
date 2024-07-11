@@ -21,10 +21,17 @@ namespace BlockBusters.API.Controllers
             return this.videoDiscoveryService.ShowAllVideos();
         }
 
+        // Instead of conflicting routes for different body types, we will just pass an array; even when we want to update only 1.
+        //[HttpPost]
+        //public VideoDto Post([FromBody] VideoDto video)
+        //{
+        //    return this.videoDiscoveryService.AddOneVideo(video);
+        //}
+
         [HttpPost]
-        public VideoDto Post([FromBody] VideoDto video)
+        public IEnumerable<VideoDto> PostMultiple([FromBody] IEnumerable<VideoDto> videos)
         {
-            return this.videoDiscoveryService.AddOneVideo(video);
+            return this.videoDiscoveryService.AddMultipleVideos(videos);
         }
     }
 }

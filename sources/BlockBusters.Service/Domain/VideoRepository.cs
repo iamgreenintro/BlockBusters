@@ -148,5 +148,31 @@ namespace BlockBusters.Service.Domain
 
             return video;
         }
+
+        // This definitely needs to be changed as we are creating connections in a loop by invoking the this.createOne(videoData) each time!!!
+        // Maybe we can query everthing and store that data and loop through it to generate the videos list we want to return.
+
+        public IEnumerable<Video> CreateMultiple(IEnumerable<VideoDto> multipleVideosData)
+        {
+            try
+            {
+                List<Video> videos = new List<Video>();
+                    
+                foreach (var videoData in multipleVideosData)
+                {
+                    var video = this.CreateOne(videoData);
+                    videos.Add(video);
+                }
+
+                return videos;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"{ex.GetType()} {ex.Message}");
+            }
+
+        }
     }
+
 }
