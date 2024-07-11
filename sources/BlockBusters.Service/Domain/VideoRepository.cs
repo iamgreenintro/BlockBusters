@@ -74,14 +74,11 @@ namespace BlockBusters.Service.Domain
 
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
-
-                    string insertQuery = @"
-        INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description])
-        VALUES (@Title, @Duration, @ImageUrl, @Description);
-        SELECT SCOPE_IDENTITY();"; // Get the ID of the newly inserted record
+                    // Query: Insert and then Select/Get the ID of the newly inserted record
+                    string query = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();"; 
 
 
-                    using (SqlCommand command = new SqlCommand(insertQuery, connection, transaction))
+                    using (SqlCommand command = new SqlCommand(query, connection, transaction))
                     {
 
                         command.Parameters.AddWithValue("@Title", videoData.Title);
