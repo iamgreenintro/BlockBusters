@@ -16,6 +16,7 @@ namespace BlockBusters.API
 
             builder.Services.AddTransient<VideoDiscoveryService>();
             builder.Services.AddTransient<VideoRepository>();
+            builder.Services.AddTransient<GenreRepository>();
             builder.Services.AddTransient<IBlockBustersConnection, ApiBlockBusterConnection>();
 
             var app = builder.Build();

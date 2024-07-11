@@ -2,6 +2,6 @@
 {
     public class GenreDto
     {
-        public string Genre { get; set ;}
+        public string Genre { get; set; }
     }
 }

@@ -12,6 +12,5 @@
 
         public string Description { get; set; }
 
-        public IEnumerable<string> Genres { get; set; }
     }
 }
