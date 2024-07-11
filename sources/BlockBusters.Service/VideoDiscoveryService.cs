@@ -33,5 +33,23 @@ namespace BlockBusters.Service
                 };
             });
         }
+
+        public VideoDto AddOneVideo(VideoDto video)
+        {
+            var createdVideo = this.videoRepository.CreateOne(video);
+            VideoDto resultVideoDto = new VideoDto()
+            {
+                Title = createdVideo.Title,
+                Description = createdVideo.Description,
+                Duration = createdVideo.Duration,
+                VideoThumbUrl = createdVideo.ImageUrl,
+                Genres = this.genreRepository.getAllGenresForVideo(createdVideo.Id).Select(genre =>
+                {
+                    return new GenreDto { Genre = genre.Name };
+                })
+            };
+
+            return resultVideoDto;
+        }
     }
 }

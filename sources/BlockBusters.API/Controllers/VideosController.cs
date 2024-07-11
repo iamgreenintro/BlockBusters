@@ -20,5 +20,11 @@ namespace BlockBusters.API.Controllers
         {
             return this.videoDiscoveryService.ShowAllVideos();
         }
+
+        [HttpPost]
+        public VideoDto Post([FromBody] VideoDto video)
+        {
+            return this.videoDiscoveryService.AddOneVideo(video);
+        }
     }
 }

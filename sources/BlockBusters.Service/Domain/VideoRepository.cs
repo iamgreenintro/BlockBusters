@@ -63,5 +63,49 @@ namespace BlockBusters.Service.Domain
 
             return videos;
         }
+
+        public Video CreateOne(VideoDto videoData)
+        {
+            Video video = new Video();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+                {
+
+                    string insertQuery = @"
+        INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description])
+        VALUES (@Title, @Duration, @ImageUrl, @Description);
+        SELECT SCOPE_IDENTITY();"; // Get the ID of the newly inserted record
+
+
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection, transaction))
+                    {
+
+                        command.Parameters.AddWithValue("@Title", videoData.Title);
+                        command.Parameters.AddWithValue("@Duration", videoData.Duration);
+                        command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
+                        command.Parameters.AddWithValue("@Description", videoData.Description);
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+
+                            video = new Video()
+                            {
+                                Title = videoData.Title,
+                                Duration = videoData.Duration,
+                                ImageUrl = videoData.VideoThumbUrl,
+                                Description = videoData.Description
+                            };
+                        }
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            return video;
+        }
     }
 }

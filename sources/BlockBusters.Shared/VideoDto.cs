@@ -10,6 +10,6 @@
 
         public string Description { get; set; }
 
-        public IEnumerable<GenreDto> Genres { get; set; } // Can have multiple genres for a single video.
+        public IEnumerable<GenreDto>? Genres { get; set; } // Can have multiple genres for a single video.
     }
 }
