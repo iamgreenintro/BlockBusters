@@ -100,14 +100,16 @@ namespace BlockBusters.Service.Domain
 
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
-                    string query = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
+                    string queryInsertVideos = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
 
                     try
                     {
                         foreach (var videoData in multipleVideosData)
                         {
                             using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                            using (SqlCommand command = new SqlCommand(queryInsertVideos, connection, transaction))
                             {
+                                // Replace query placeholders with the values of our videoData properties.
                                 command.Parameters.AddWithValue("@Title", videoData.Title);
                                 command.Parameters.AddWithValue("@Duration", videoData.Duration);
                                 command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
@@ -116,9 +118,10 @@ namespace BlockBusters.Service.Domain
                                 // For casting purposes
                                 int videoId;
 
-                                // Receives the ID based on SELECT SCOPE_IDENTITY();
+                                // Receives the ID based on SELECT SCOPE_IDENTITY();  ExecuteScalar() always returns the first record it finds by the given command query
                                 object result = command.ExecuteScalar();
                                 
+                                // If our result got populated and we can cast it to an int (expects an integer for the ID), have the value assigned to videoId.
                                 if (result != null && int.TryParse(result.ToString(), out videoId))
                                 {
                                     videos.Add(new Video()
@@ -129,6 +132,10 @@ namespace BlockBusters.Service.Domain
                                         ImageUrl = videoData.VideoThumbUrl,
                                         Description = videoData.Description
                                     });
+                                }
+                                else
+                                {
+                                    throw new Exception("Unable to get the videoId of videos we inserted!");
                                 }
                             }
                         }

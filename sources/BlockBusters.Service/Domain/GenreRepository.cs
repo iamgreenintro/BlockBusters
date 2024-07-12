@@ -71,7 +71,6 @@ namespace BlockBusters.Service.Domain
                             }
                         }
 
-                        // 
                         transaction.Commit();
 
                     }
