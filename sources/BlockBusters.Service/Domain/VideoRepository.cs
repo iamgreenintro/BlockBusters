@@ -100,39 +100,35 @@ namespace BlockBusters.Service.Domain
 
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
-                    string queryInsert = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
-                    string querySelect = "SELECT [id],[title],[duration],[image_url],[description] FROM [dbo].[videos] WHERE [title] = @Title;";
+                    string query = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
 
                     try
                     {
                         foreach (var videoData in multipleVideosData)
                         {
-                            using (SqlCommand command = new SqlCommand(queryInsert, connection, transaction))
+                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@Title", videoData.Title);
                                 command.Parameters.AddWithValue("@Duration", videoData.Duration);
                                 command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
                                 command.Parameters.AddWithValue("@Description", videoData.Description);
-                                command.ExecuteScalar();
-                            }
 
-                            using (SqlCommand command = new SqlCommand(querySelect, connection, transaction))
-                            {
-                                command.Parameters.AddWithValue("@Title", videoData.Title);
+                                // For casting purposes
+                                int videoId;
 
-                                using (SqlDataReader reader = command.ExecuteReader())
+                                // Receives the ID based on SELECT SCOPE_IDENTITY();
+                                object result = command.ExecuteScalar();
+                                
+                                if (result != null && int.TryParse(result.ToString(), out videoId))
                                 {
-                                    while (reader.Read())
+                                    videos.Add(new Video()
                                     {
-                                        videos.Add(new Video()
-                                        {
-                                            Id = (int)reader["id"],
-                                            Title = (string)reader["title"],
-                                            Duration = (int)reader["duration"],
-                                            ImageUrl = (string)reader["image_url"],
-                                            Description = (string)reader["description"]
-                                        });
-                                    }
+                                        Id = videoId,
+                                        Title = videoData.Title,
+                                        Duration = videoData.Duration,
+                                        ImageUrl = videoData.VideoThumbUrl,
+                                        Description = videoData.Description
+                                    });
                                 }
                             }
                         }
