@@ -10,7 +10,7 @@ _Description will be added soon_
 - C#
 - .NET 8.0
 
-## How to run the client and server:
+## How to run the Web API project:
 
 **Step 1:**
 Clone the project (contains both the client and server directories)
