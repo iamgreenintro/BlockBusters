@@ -104,14 +104,16 @@ namespace BlockBusters.Service.Domain
 
                     try
                     {
-                        using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                        foreach (var videoData in multipleVideosData)
                         {
-                            foreach (var videoData in multipleVideosData)
+                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@Title", videoData.Title);
                                 command.Parameters.AddWithValue("@Duration", videoData.Duration);
                                 command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
                                 command.Parameters.AddWithValue("@Description", videoData.Description);
+                                command.ExecuteScalar();
+
                                 Video video = new Video()
                                 {
                                     Title = videoData.Title,
@@ -123,7 +125,6 @@ namespace BlockBusters.Service.Domain
                                 videos.Add(video);
                             }
                         }
-
                         transaction.Commit();
                     }
                     catch (Exception ex)
