@@ -94,6 +94,8 @@ namespace BlockBusters.Service.Domain
         public IEnumerable<Video> CreateMultiple(IEnumerable<VideoDto> multipleVideosData)
         {
             List<Video> videos = new List<Video>();
+            List<Genre> genres = new List<Genre>();
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -101,12 +103,33 @@ namespace BlockBusters.Service.Domain
                 using (SqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
                     string queryInsertVideos = "INSERT INTO [dbo].[videos] ([title], [duration], [image_url], [description]) VALUES (@Title, @Duration, @ImageUrl, @Description); SELECT SCOPE_IDENTITY();";
+                    // ? [QUESTION]: Should the query below be separated from this repository and only come from the GenreRepository? Even though it's an extra connection?
+                    string querySelectGenres = "SELECT [id],[genre] FROM [dbo].[genres]";
+                    // ? [QUESTION]: Should the query below be separated from this repository and only come from the GenreRepository? Even though it's an extra connection?
+                    string queryInsertVideoGenres = "INSERT INTO [dbo].[video_genres] ([video_id], [genre_id]) VALUES (@VideoId, @GenreId); SELECT SCOPE_IDENTITY();";
 
                     try
                     {
+                        using (SqlCommand command = new SqlCommand(querySelectGenres, connection, transaction))
+                        {
+                            using(SqlDataReader reader = command.ExecuteReader())
+                            {
+                                while(reader.Read())
+                                {
+                                    genres.Add(new Genre()
+                                    {
+                                        Id = (int)reader["id"],
+                                        Name = (string)reader["genre"]
+                                    });
+                                }
+                            }
+                        }
+
                         foreach (var videoData in multipleVideosData)
                         {
-                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                            // For casting purposes.
+                            int videoId;
+
                             using (SqlCommand command = new SqlCommand(queryInsertVideos, connection, transaction))
                             {
                                 // Replace query placeholders with the values of our videoData properties.
@@ -114,10 +137,7 @@ namespace BlockBusters.Service.Domain
                                 command.Parameters.AddWithValue("@Duration", videoData.Duration);
                                 command.Parameters.AddWithValue("@ImageUrl", videoData.VideoThumbUrl);
                                 command.Parameters.AddWithValue("@Description", videoData.Description);
-
-                                // For casting purposes
-                                int videoId;
-
+                                
                                 // Receives the ID based on SELECT SCOPE_IDENTITY();  ExecuteScalar() always returns the first record it finds by the given command query
                                 object result = command.ExecuteScalar();
                                 
@@ -137,6 +157,39 @@ namespace BlockBusters.Service.Domain
                                 {
                                     throw new Exception("Unable to get the videoId of videos we inserted!");
                                 }
+                            }
+
+                            if(videoData.Genres != null)
+                            {
+                                foreach (var vg in videoData.Genres)
+                                {
+                                    // placeholder value that will hold the genre.id if there's a match.
+                                    int genreId = 0;
+                                    // Check if the video genre exists in genre table and if it does, use the value to assign it to the genreId for the SQL query.
+                                    if (genres.Any(g =>
+                                    {
+                                        genreId = g.Id;
+                                        return g.Name == vg.Genre;
+                                    }))
+                                    {
+                                        using (SqlCommand command = new SqlCommand(queryInsertVideoGenres, connection, transaction))
+                                        {
+                                            command.Parameters.AddWithValue("@VideoId", videoId);
+                                            command.Parameters.AddWithValue("@GenreId", genreId);
+
+                                            // Receives the ID based on SELECT SCOPE_IDENTITY();  ExecuteScalar() always returns the first record it finds by the given command query
+                                            command.ExecuteScalar();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new Exception($"{vg.Genre} is not part of the available genres!");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                throw new ArgumentNullException($"videoData.Genres is {videoData.Genres}");
                             }
                         }
 
