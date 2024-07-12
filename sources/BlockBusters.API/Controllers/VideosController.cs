@@ -15,6 +15,7 @@ namespace BlockBusters.API.Controllers
             this.videoDiscoveryService = videoDiscoveryService;
         }
 
+        // Returns all videos or an empty array.
         [HttpGet]
         public IEnumerable<VideoDto> Get()
         {
@@ -22,6 +23,7 @@ namespace BlockBusters.API.Controllers
         }
 
         // Instead of conflicting routes for for a single video or multiple videos, we will just pass an array; even when we want to update only 1.
+        // Returns the created video(s)
         [HttpPost]
         public IEnumerable<VideoDto> PostMultiple([FromBody] IEnumerable<VideoDto> videos)
         {
